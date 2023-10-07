@@ -397,6 +397,7 @@ void setup()
   
   setupSPIFFS();
   setupLED();
+  setupBattery();
   setupI2C();
   setupGPIO();
 
