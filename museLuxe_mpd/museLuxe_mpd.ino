@@ -292,7 +292,7 @@ static void playRadio(void* data)
 
 void setupSPIFFS()
 {
-  if(!SPIFFS.begin())
+  if(!SPIFFS.begin(true))
   {
     Serial.println("Error initializing SPIFFS.");
     return;
@@ -350,11 +350,14 @@ void setupGPIO()
 
 void initVolume()
 {
-  char b[4];
+  char b[4] = "";
   File ln = SPIFFS.open("/volume", "r");
   ln.read((uint8_t*)b, 2);
-  b[2] = 0;
-  vol = atoi(b);
+  if (b[0])
+  {
+    b[2] = 0;
+    vol = atoi(b);
+  }
   ln.close();
 
   printf("Volume: %d (max: %d)\n", vol, maxVol);
