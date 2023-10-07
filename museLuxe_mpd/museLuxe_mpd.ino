@@ -13,8 +13,9 @@
 
 #define luxThreshold 5
 #define darkDuration 100
-#define lightDuration 10
+#define lightDuration 5
 #define sleepDuration 100000
+#define wifiRestartTimeout 1000
 
 extern "C"
 {
@@ -446,7 +447,19 @@ void sleepWhileDark()
             connected = false;
 
             adc_power_on();
-            initWiFi();
+            WiFi.begin();
+#ifdef SEARCH_STRONG_AP
+            // Try to reconnect to previous AP, before WifiMulti takes over.
+            unsigned long wifiStart = millis();
+            while (millis() < wifiStart + wifiRestartTimeout)
+            {
+              wl_status_t status = WiFi.status();
+              if (status == WL_CONNECTED || status == WL_NO_SSID_AVAIL || status == WL_CONNECT_FAILED)
+                break;
+              delay(10);
+            }
+#endif
+
             vTaskResume(radioTask);
             vTaskResume(batteryTask);
             vTaskResume(keyboardTask);
